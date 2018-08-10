@@ -5,7 +5,9 @@ https://open.kattis.com/problems/shovelling
 #include <iostream>
 #include <string>
 #include <vector>
-#include <queue>
+#include <algorithm>
+#include <math.h>
+#include <stdlib.h>
 #include <algorithm>
 
 using namespace std;
@@ -37,22 +39,13 @@ struct ShovelResult
         int GetCost() { return _cost; }
 };
 
-vector<int> GetNeighbours(int index)
+float GetDist(int a, int b)
 {
-    vector<int> result = vector<int>();
-    int x = index % n;
-    int y = index / n;
-    int xD [] = {-1, 1, 0, 0};
-    int yD [] = {0, 0, -1, 1};
-    for(int d = 0; d<4; d++)
-    {
-        int n_x = x + xD[d];
-        int n_y = y + yD[d];
-        if(n_x < 0 || n_x >= n || n_y < 0 || n_y >= m)
-            continue;
-        result.push_back(n_x + n_y * n);
-    }
-    return result;
+    int aX = (a % n);
+    int aY = (a / n);
+    int bX = (b % n);
+    int bY = (b / n);
+    return sqrt(abs(aX-bX) + abs(aY-bY));
 }
 
 ShovelResult Shovel(string map, int start, int end, int maxCost)
@@ -64,73 +57,120 @@ ShovelResult Shovel(string map, int start, int end, int maxCost)
         return ShovelResult(path, map, 0);
     }
 
-    int mapLength = map.length();
+    vector<int> open = vector<int>();
+    open.push_back(start);
 
-    queue<int> q = queue<int>();
-    q.push(start);
-    
-    vector<vector<int> > paths = vector<vector<int> >();
-    for(int i=0; i<mapLength; i++)
-    {
-        vector<int> v = vector<int>();
-        if(i == start)
-            v.push_back(start);
-        paths.push_back(v);
-    }
+    vector<int> closed = vector<int>();
 
-    vector<int> costs = vector<int>();
-    for(int i=0; i<mapLength; i++)
-    {
-        if(i == start)
-            costs.push_back(0);
-        else
-            costs.push_back(9999);
-    }
+    vector<int> comeFrom = vector<int>();
+    for(int i=0; i<map.size(); i++)
+        comeFrom.push_back(-1);
 
-    while(q.size() > 0)
+    vector<int> gScore = vector<int>();
+    for(int i=0; i<map.size(); i++)
+        gScore.push_back(9999);
+    gScore[start] = 0;
+        
+    vector<float> fScore = vector<float>();
+    for(int i=0; i<map.size(); i++)
+        fScore.push_back(9999);
+    fScore[start] = GetDist(start, end);
+
+    while (open.size() > 0)
     {
-        int c = q.front();
-        q.pop();
-        vector<int> neighbours = GetNeighbours(c);
-        for(int i=0; i<neighbours.size(); i++)
+        int c = open[0];
+        int cIndex = 0;
+        for(int i=1; i<open.size(); i++)
         {
-            int neighbour = neighbours[i];
+            if(fScore[open[i]] < fScore[c])
+            {
+                c = open[i];
+                cIndex = i;
+            }
+        }
+        if(c == end)
+        {
+            vector<int> path = vector<int>();
+            int tmp = c;
+            path.push_back(c);
+            while(comeFrom[tmp] != -1)
+            {
+                tmp = comeFrom[tmp];
+                path.push_back(tmp);
+            }
 
+            int cost = 0;
+            string result = string(map);
+            for(int i=0; i<path.size(); i++)
+            {
+                int p = path[i];
+                if(result[p] != Snow)
+                    continue;
+                result = result.substr(0,p) + Cleared + result.substr(p+1);
+                cost += 1;
+            }
+
+            return ShovelResult(path, result, cost);
+        }
+
+        if(gScore[c] > maxCost)
+        {
+            vector<int> p = vector<int>();
+            return ShovelResult(p, map, 9999);
+        }
+
+        open.erase(open.begin() + cIndex);
+        closed.push_back(c);
+
+        int xD [] = {-1, 1, 0, 0};
+        int yD [] = {0, 0, -1, 1};
+        for(int d = 0; d<4; d++)
+        {
+            int n_x = (c % n) + xD[d];
+            int n_y = (c / n) + yD[d];
+            if(n_x < 0 || n_x >= n || n_y < 0 || n_y >= m)
+                continue;
+
+            int neighbour = n_y * n + n_x;
+       
             if(map[neighbour] == Blocked)
                 continue;
-            int newCost = costs[c];
-            if(map[neighbour] == Snow)
-                newCost += 1;
-            if(newCost > maxCost)
-                continue;
-            if(newCost < costs[neighbour])
+            
+            bool foundInClosed = false;
+            for(int i=0; i<closed.size() && !foundInClosed; i++)
             {
-                costs[neighbour] = newCost;
-
-                vector<int> newPath = vector<int>(paths[c]);
-                newPath.push_back(neighbour);
-                paths[neighbour] = newPath;
-
-                if(neighbour == end)
-                    maxCost = newCost;
-                else
-                    q.push(neighbour);
+                if(closed[i] == neighbour)
+                    foundInClosed = true;
             }
+            if(foundInClosed)
+                continue;
+            
+            float newScore = gScore[c];
+            if(map[neighbour] == Snow)
+                newScore += 1;
+            
+            bool foundInOpen = false;
+            for(int i=0; i<open.size() && !foundInOpen; i++)
+            {
+                if(open[i] == neighbour)
+                    foundInOpen = true;
+            }
+            if(!foundInOpen)
+            {
+                open.push_back(neighbour);
+            }
+            else if(newScore >= gScore[neighbour])
+            {
+                continue;
+            }
+
+            comeFrom[neighbour] = c;
+            gScore[neighbour] = newScore;
+            fScore[neighbour] = newScore + GetDist(neighbour, end);
         }
     }
 
-    int cost = 0;
-    string result = string(map);
-    for(int i=0; i<paths[end].size(); i++)
-    {
-        int p = paths[end][i];
-        if(result[p] != Snow)
-            continue;
-        result = result.substr(0,p) + Cleared + result.substr(p+1);
-        cost += 1;
-    }
-
-    return ShovelResult(paths[end], result, cost);
+    return ShovelResult(vector<int>(), map, 9999);
 }
 
 string GetInputLine()
@@ -168,38 +208,34 @@ string Solve()
     string mapClone;
     int cost;
 
-    mapClone = string(map);
-    cost = 0;
-    for(int i= 1; i<4; i++)
-    {
-        ShovelResult shRes = Shovel(mapClone, houses[0], houses[i], bestCost);
-        mapClone = shRes.GetMap();
-        cost += shRes.GetCost();
-    }
-    if(cost < bestCost)
-    {
-        bestMap = mapClone;
-        bestCost = cost;
-    }
+    vector<int> permHouses = vector<int>();
+    permHouses.push_back(houses[0]);
+    permHouses.push_back(houses[1]);
+    permHouses.push_back(houses[2]);
+    permHouses.push_back(houses[3]);
+    sort(permHouses.begin(), permHouses.end());
+    do {
+        mapClone = string(map);
+        cost = 0;
+        for(int i= 1; i<4; i++)
+        {
+            ShovelResult shRes = Shovel(mapClone, permHouses[0], permHouses[i], bestCost);
+            mapClone = shRes.GetMap();
+            cost += shRes.GetCost();
+        }
+        if(cost < bestCost)
+        {
+            bestMap = mapClone;
+            bestCost = cost;
+        }
+    } while(next_permutation(permHouses.begin(), permHouses.end()));
 
-    // Calc a simple (fast) solution to get a upper bound of shovelling costs
-    mapClone = string(map);
-    cost = 0;
-    for(int i= 1; i<4; i++)
-    {
-        ShovelResult shRes = Shovel(mapClone, houses[0], houses[i], bestCost);
-        mapClone = shRes.GetMap();
-        cost += shRes.GetCost();
-    }
-    bestMap = mapClone;
-    bestCost = cost;
+    return bestMap;
 
     for (int piv=0; piv<map.size(); piv++)
     {
         if(map[piv] == Blocked)
             continue;
-        int x = piv % n;
-        int y = piv / n;
         mapClone = string(map);
         cost = 0;
         for(int i=0; i<4; i++)
