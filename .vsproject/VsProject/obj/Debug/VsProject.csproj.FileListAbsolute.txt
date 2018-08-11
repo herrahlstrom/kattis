@@ -1,0 +1,6 @@
+C:\Users\Dator\Dropbox\code\kattis\.vsproject\VsProject\bin\Debug\VsProject.exe.config
+C:\Users\Dator\Dropbox\code\kattis\.vsproject\VsProject\bin\Debug\VsProject.exe
+C:\Users\Dator\Dropbox\code\kattis\.vsproject\VsProject\bin\Debug\VsProject.pdb
+C:\Users\Dator\Dropbox\code\kattis\.vsproject\VsProject\obj\Debug\VsProject.csprojResolveAssemblyReference.cache
+C:\Users\Dator\Dropbox\code\kattis\.vsproject\VsProject\obj\Debug\VsProject.exe
+C:\Users\Dator\Dropbox\code\kattis\.vsproject\VsProject\obj\Debug\VsProject.pdb
