@@ -20,11 +20,7 @@ neighbours = []
 
 def get_heuristicscore(a, b):
     global n
-    aX = (a % n)
-    aY = (a // n)
-    bX = (b % n)
-    bY = (b // n)
-    return abs(aX - bX) + abs(aY - bY)
+    return abs((a % n) - (b % n)) + abs((a // n) - (b // n))
 
 def read_mapdata():
     global n, m, map, houses, neighbours
@@ -130,17 +126,25 @@ def solve():
         if cost < best_cost:
             best_cost = cost
             best_map = map_clone
-    return (best_map, best_cost)
+    return best_map
 
-while read_mapdata():
+def shovelling():
+    while read_mapdata():
+        start = time.time()
+        result_map = solve()
+        print("{} {}".format(n, m))
+        for y in range(m):
+           #print(result_map[y * n : (y + 1) * n])
+           print(map[y * n : (y + 1) * n], result_map[y * n : (y + 1) * n], sep="  ->  ")
+        print()
+        print("{:.2f} sec".format(time.time() - start))
+    print("0 0")
 
-    start = time.time()
-    (result_map, result_cost) = solve()
-    elapsed = time.time() - start
+def shovelling_cost():
+    while read_mapdata():
+        start = time.time()
+        result_cost = solve().count(".") - map.count(".")
+        print(result_cost)
+        #print("{:.2f} sec".format(time.time() - start))
 
-    print("{} {} -> {}".format(n, m, elapsed))
-    for y in range(m):
-        print(result_map[y * n : (y + 1) * n])
-    print()
-
-print("0 0")
+shovelling_cost()

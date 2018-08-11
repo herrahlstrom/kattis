@@ -1,25 +1,6 @@
 10 1
 AooBooCooD
 
-10 1
-AoCBoooD.#
-
-10 1
-A.CBoooD.#
-
-10 1
-A..B..C..D
-
-12 3
-oooooooooooo
-oAooBooCooDo
-oooooooooooo
-
-12 3
-oooooooooooo
-oA..B..C..Do
-oooooooooooo
-
 12 5
 oooooooooooo
 oAooBooCooDo
@@ -34,21 +15,6 @@ A.oo.oo.ooo.
 o.oo.oo.ooo.
 oo..o..o...o
 
-12 5
-oooooooooooo
-ooooBooCooDo
-A.oo.oo.ooo.
-o.oo.oo.oo..
-oo..o..o...o
-
-6 2
-AooBCD
-oooo##
-
-6 2
-A..BCD
-oooo##
-
 6 6
 AooooB
 oooooo
@@ -62,13 +28,6 @@ ooAoo
 ooooo
 BoooC
 ooooo
-ooDoo
-
-5 5
-ooAoo
-Boooo
-ooooo
-ooooC
 ooDoo
 
 4 4
