@@ -18,6 +18,9 @@ houses = []
 map = ""
 neighbours = []
 
+# DEBUG
+print_debug = True
+
 def get_heuristicscore(a, b):
     global n
     return abs((a % n) - (b % n)) + abs((a // n) - (b // n))
@@ -134,10 +137,13 @@ def shovelling():
         result_map = solve()
         print("{} {}".format(n, m))
         for y in range(m):
-           #print(result_map[y * n : (y + 1) * n])
-           print(map[y * n : (y + 1) * n], result_map[y * n : (y + 1) * n], sep="  ->  ")
+            if print_debug:
+                print(map[y * n : (y + 1) * n], result_map[y * n : (y + 1) * n], sep="  ->  ")
+            else
+                print(result_map[y * n : (y + 1) * n])
         print()
-        print("{:.2f} sec".format(time.time() - start))
+        if print_debug:
+            print("{:.2f} sec".format(time.time() - start))
     print("0 0")
 
 def shovelling_cost():
@@ -145,6 +151,7 @@ def shovelling_cost():
         start = time.time()
         result_cost = solve().count(".") - map.count(".")
         print(result_cost)
-        #print("{:.2f} sec".format(time.time() - start))
+        if print_debug:
+            print("{:.2f} sec".format(time.time() - start))
 
 shovelling_cost()
