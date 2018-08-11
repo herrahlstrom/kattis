@@ -31,6 +31,16 @@ def gen_randomdata(n, m):
         chars[i], chars[r] = chars[r], chars[i]
     return "".join(chars)
 
+
+def get_heuristicscore(a, b):
+    global n
+    aX = (a % n)
+    aY = (a // n)
+    bX = (b % n)
+    bY = (b // n)
+    return abs(aX - bX) + abs(aY - bY)
+
+
 def read_mapdata():
     global n, m, map, houses
     global fake_maps
@@ -62,35 +72,50 @@ def get_neighbours(index):
         if neighbour[1] < 0 or neighbour[1] >= m: continue
         yield neighbour[0] + (neighbour[1] * n)
 
+
 def get_path(map, start, end, maxcost):
     if start == end:
         return [start]
-    q = [start]
-    paths = [None] * len(map)
-    cost = [99999] * len(map)
-    paths[start] = [start]
-    cost[start] = 0
-    while q:
-        c = q[0]
-        q = q[1:]
+    open = [start]
+    closed = []
+    source = [-1] * len(map)
+    g_score = [9999] * len(map)
+    g_score[start] = 0
+    f_score = [9999] * len(map)
+    f_score[start] = get_heuristicscore(start, end)
+    while open:
+        c = open[0]
+        for o in open:
+            if f_score[o] < f_score[c]:
+                c = o
+        if c == end:
+            path = [c]
+            tmp = c
+            while source[tmp] != -1:
+                tmp = source[tmp]
+                path.append(tmp)
+            path.reverse()
+            return path
+        if g_score[c] > maxcost:
+            return None
+        open.remove(c)
+        closed.append(c)
         for neighbour in get_neighbours(c):
             if map[neighbour] == BLOCKED:
                 continue
-            new_cost = cost[c]
-            if map[neighbour] == SNOW:
-                new_cost += 1
-            if new_cost > maxcost:
+            if neighbour in closed:
                 continue
-            if new_cost < cost[neighbour]:
-                cost[neighbour] = new_cost
-                paths[neighbour] = paths[c] + [neighbour]
-                if neighbour == end:
-                    maxcost = new_cost
-                else:
-                    q.append(neighbour)
-    if paths[end] is None:
-        return None
-    return paths[end]
+            newscore = g_score[c]
+            if map[neighbour] == SNOW:
+                newscore += 1
+            if not neighbour in open:
+                open.append(neighbour)
+            elif newscore >= g_score[neighbour]:
+                continue
+            source[neighbour] = c
+            g_score[neighbour] = newscore
+            f_score[neighbour] = newscore + get_heuristicscore(neighbour, end)
+    return None
 
 def shovel(map, path):
     cost = 0
