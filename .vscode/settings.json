@@ -5,5 +5,9 @@
         "vector": "cpp",
         "algorithm": "cpp",
         "deque": "cpp"
+    },
+    "files.exclude": {
+        ".vscode/": true,
+        "**/obj/": true
     }
 }
