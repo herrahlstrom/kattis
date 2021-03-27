@@ -4,17 +4,18 @@ https://open.kattis.com/problems/teque
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Teque
 {
-    class Teque<T>
+    internal class Teque<T>
     {
-        private Dictionary<int, T> _front = new Dictionary<int, T>();
-        private Dictionary<int, T> _back = new Dictionary<int, T>();
-        private int _frontHead = -1;
-        private int _frontTail = 0;
+        private readonly Dictionary<int, T> _back = new Dictionary<int, T>(1024);
+        private readonly Dictionary<int, T> _front = new Dictionary<int, T>(1024);
         private int _backHead = -1;
-        private int _backTail = 0;
+        private int _backTail;
+        private int _frontHead = -1;
+        private int _frontTail;
 
         public T Get(int position)
         {
@@ -22,103 +23,128 @@ namespace Teque
                 ? _front[_frontHead + position + 1]
                 : _back[position - _front.Count + _backHead + 1];
         }
-        
+
         public void PushBack(T value)
         {
             _back[_backTail++] = value;
-            ReArrange();
         }
 
         public void PushFront(T value)
         {
             _front[_frontHead--] = value;
-            ReArrange();
         }
 
         public void PushMiddle(T value)
         {
-            _front[_frontTail++] = value;
             ReArrange();
+            _front[_frontTail++] = value;
         }
 
         private void ReArrange()
         {
-            if (_front.Count < _back.Count)
+            while (true)
             {
-                _front[_frontTail++] = _back[_backHead + 1];
-                _back.Remove(++_backHead);
-            }
-            else if (_front.Count - 1 > _back.Count)
-            {
-                _back[_backHead--] = _front[_frontTail - 1];
-                _front.Remove(--_frontTail);
+                if (_front.Count < _back.Count)
+                {
+                    _front[_frontTail++] = _back[_backHead + 1];
+                    _back.Remove(++_backHead);
+                }
+                else if (_front.Count - 1 > _back.Count)
+                {
+                    _back[_backHead--] = _front[_frontTail - 1];
+                    _front.Remove(--_frontTail);
+                }
+                else
+                {
+                    break;
+                }
             }
         }
     }
 
-    class Program
+    internal class Program
     {
-        private static Teque<long> _q = new Teque<long>();
-        
-        private static void Command(string line)
+        private static readonly Teque<string> Q = new Teque<string>();
+
+        private static void Command(string command, string value)
         {
-            var lineArr = line.Split(' ');
-            
-            switch (lineArr[0])
+            switch (command)
             {
                 case "push_back":
-                    _q.PushBack(long.Parse(lineArr[1]));
+                    Q.PushBack(value);
                     break;
-                
+
                 case "push_front":
-                    _q.PushFront(long.Parse(lineArr[1]));
+                    Q.PushFront(value);
                     break;
-                
+
                 case "push_middle":
-                    _q.PushMiddle(long.Parse(lineArr[1]));
+                    Q.PushMiddle(value);
                     break;
-                
+
                 case "get":
-                    Console.WriteLine(_q.Get(int.Parse(lineArr[1])));
+                    int position = int.Parse(value);
+                    Console.WriteLine(Q.Get(position));
                     break;
-                
+
                 default:
-                    throw new ArgumentException("Invalid line: " + line);
+                    throw new ArgumentException("Invalid command: " + command);
             }
         }
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
-            //var sw = System.Diagnostics.Stopwatch.StartNew();
-
-
+            //var sw = Stopwatch.StartNew();
 
             int noOps = int.Parse(Console.ReadLine());
 
-            var input = new Queue<string>();
-
-            var buffer = new char[1024];
-            bool readDone = false;
-            do
-            {
-                var readed = Console.In.Read(buffer, 0, buffer.Length);
-                if (readed < buffer.Length)
-                {
-                    readDone = true;
-                }
-
-                var r = new System.IO.StringReader()
-
-            } while (!readDone);
+            var inputCommand = new StringBuilder(16);
+            var inputValue = new StringBuilder(16);
+            int state = 0;
 
             while (noOps > 0)
             {
-                noOps--;
-                string line = Console.ReadLine();
-                Command(line);
+                char ch = (char) Console.Read();
+
+                switch (state)
+                {
+                    case 0:
+                        switch (ch)
+                        {
+                            case '\r':
+                            case '\n':
+                                break;
+                            case ' ':
+                                state = 1;
+                                break;
+                            default:
+                                inputCommand.Append(ch);
+                                break;
+                        }
+
+                        break;
+                    case 1:
+                        switch (ch)
+                        {
+                            case '\r':
+                            case '\n':
+                                Command(inputCommand.ToString(), inputValue.ToString());
+                                noOps--;
+                                inputCommand.Clear();
+                                inputValue.Clear();
+                                state = 0;
+                                break;
+                            default:
+                                inputValue.Append(ch);
+                                break;
+                        }
+
+                        break;
+                }
             }
 
-            // sw.Stop();
-            // Console.WriteLine($"Elapsed: {sw.ElapsedMilliseconds} ms.");
+            //sw.Stop();
+            //Console.Error.WriteLine($"Elapsed: {sw.ElapsedMilliseconds} ms.");
         }
     }
 }
