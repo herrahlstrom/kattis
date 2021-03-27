@@ -16,6 +16,31 @@ namespace Teque
         private int _backHead = -1;
         private int _backTail = 0;
 
+        public T Get(int position)
+        {
+            return position < _front.Count
+                ? _front[_frontHead + position + 1]
+                : _back[position - _front.Count + _backHead + 1];
+        }
+        
+        public void PushBack(T value)
+        {
+            _back[_backTail++] = value;
+            ReArrange();
+        }
+
+        public void PushFront(T value)
+        {
+            _front[_frontHead--] = value;
+            ReArrange();
+        }
+
+        public void PushMiddle(T value)
+        {
+            _front[_frontTail++] = value;
+            ReArrange();
+        }
+
         private void ReArrange()
         {
             if (_front.Count < _back.Count)
@@ -29,52 +54,34 @@ namespace Teque
                 _front.Remove(--_frontTail);
             }
         }
-        public void PushBack(T value)
-        {
-            _back[_backTail++] = value;
-            ReArrange();
-        }
-
-        public void PushMiddle(T value)
-        {
-            _front[_frontTail++] = value;
-            ReArrange();
-        }
-
-        public void PushFront(T value)
-        {
-            _front[_frontHead--] = value;
-            ReArrange();
-        }
-
-        public T Get(int position)
-        {
-            return position < _front.Count
-                ? _front[_frontHead + position + 1]
-                : _back[position - _front.Count + _backHead + 1];
-        }
     }
 
     class Program
     {
         private static Teque<long> _q = new Teque<long>();
+        
         private static void Command(string line)
         {
             var lineArr = line.Split(' ');
+            
             switch (lineArr[0])
             {
                 case "push_back":
                     _q.PushBack(long.Parse(lineArr[1]));
                     break;
+                
                 case "push_front":
                     _q.PushFront(long.Parse(lineArr[1]));
                     break;
+                
                 case "push_middle":
                     _q.PushMiddle(long.Parse(lineArr[1]));
                     break;
+                
                 case "get":
                     Console.WriteLine(_q.Get(int.Parse(lineArr[1])));
                     break;
+                
                 default:
                     throw new ArgumentException("Invalid line: " + line);
             }
