@@ -1,4 +1,7 @@
-﻿using System;
+﻿/*
+https://open.kattis.com/problems/platforme
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
