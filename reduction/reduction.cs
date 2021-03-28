@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+https://open.kattis.com/problems/reduction
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,9 +18,9 @@ namespace reduction
     class Agency
     {
         public string Name { get; set; }
-        public int RateA { get; set; }
-        public int RateB { get; set; }
-        public int CalculatedCost { get; set; }
+        public int RateUnit { get; set; }
+        public int RateHalf { get; set; }
+        public int Cost { get; set; }
     }
     class Program
     {
@@ -31,11 +35,11 @@ namespace reduction
 
             foreach (var c in cases)
             {
-                Console.WriteLine(c.CaseNumber);
+                Console.WriteLine("Case {0}", c.CaseNumber);
 
-                foreach (var a in c.Agencies.OrderBy(x => x.CalculatedCost).ThenBy(x => x.Name))
+                foreach (var a in c.Agencies.OrderBy(x => x.Cost).ThenBy(x => x.Name))
                 {
-                    Console.WriteLine("{0} {1}", a.Name, a.CalculatedCost);
+                    Console.WriteLine("{0} {1}", a.Name, a.Cost);
                 }
             }
         }
@@ -49,7 +53,25 @@ namespace reduction
         }
         private static void CalculateCosts(Case c, Agency a)
         {
-            a.CalculatedCost = throw new NotImplementedException();
+            a.Cost = 0;
+            var current = c.StartWorkload;
+
+            while (current > c.TargetWorkload)
+            {
+                var workloadAfterHalf = current / 2;
+                var costPerWorkloadWhenHalfing = (float)a.RateHalf / (current - workloadAfterHalf);
+
+                if (workloadAfterHalf >= c.TargetWorkload && costPerWorkloadWhenHalfing < a.RateUnit)
+                {
+                    current = workloadAfterHalf;
+                    a.Cost += a.RateHalf;
+                }
+                else
+                {
+                    current--;
+                    a.Cost += a.RateUnit;
+                }
+            }
         }
 
         private static List<Case> ReadCases()
@@ -92,8 +114,8 @@ namespace reduction
             return new Agency
             {
                 Name = a1[0],
-                RateA = rates[0],
-                RateB = rates[1]
+                RateUnit = rates[0],
+                RateHalf = rates[1]
             };
         }
     }
