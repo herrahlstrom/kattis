@@ -64,87 +64,108 @@ namespace Teque
 
     internal class Program
     {
-        private static readonly Teque<string> Q = new Teque<string>();
-
-        private static void Command(string command, string value)
-        {
-            switch (command)
-            {
-                case "push_back":
-                    Q.PushBack(value);
-                    break;
-
-                case "push_front":
-                    Q.PushFront(value);
-                    break;
-
-                case "push_middle":
-                    Q.PushMiddle(value);
-                    break;
-
-                case "get":
-                    int position = int.Parse(value);
-                    Console.WriteLine(Q.Get(position));
-                    break;
-
-                default:
-                    throw new ArgumentException("Invalid command: " + command);
-            }
-        }
+        private static readonly Teque<long> Q = new Teque<long>();
 
         private static void Main(string[] args)
         {
-            //var sw = Stopwatch.StartNew();
-
             int noOps = int.Parse(Console.ReadLine());
 
-            var inputCommand = new StringBuilder(16);
-            var inputValue = new StringBuilder(16);
+            ReadCommands(noOps);
+        }
+
+        private static void ReadCommands(int noOps)
+        {
+            char[] inputCommand = new char[11];
+            int inputCommandLength = 0;
+            char[] inputValue = new char[10];
+            int inputValueLength = 0;
             int state = 0;
+            char[] readBuffer = new char[1024];
+
+            var output = new StringBuilder(1024 * 5);
 
             while (noOps > 0)
             {
-                char ch = (char) Console.Read();
+                int count = Console.In.Read(readBuffer, 0, readBuffer.Length);
 
-                switch (state)
+                for (int i = 0; i < count; i++)
                 {
-                    case 0:
-                        switch (ch)
-                        {
-                            case '\r':
-                            case '\n':
-                                break;
-                            case ' ':
-                                state = 1;
-                                break;
-                            default:
-                                inputCommand.Append(ch);
-                                break;
-                        }
+                    char ch = readBuffer[i];
+                    switch (state)
+                    {
+                        case 0:
+                            switch (ch)
+                            {
+                                case '\r':
+                                case '\n':
+                                    break;
+                                case ' ':
+                                    state = 1;
+                                    break;
+                                default:
+                                    inputCommand[inputCommandLength++] = ch;
+                                    break;
+                            }
 
-                        break;
-                    case 1:
-                        switch (ch)
-                        {
-                            case '\r':
-                            case '\n':
-                                Command(inputCommand.ToString(), inputValue.ToString());
-                                noOps--;
-                                inputCommand.Clear();
-                                inputValue.Clear();
-                                state = 0;
-                                break;
-                            default:
-                                inputValue.Append(ch);
-                                break;
-                        }
+                            break;
+                        case 1:
+                            switch (ch)
+                            {
+                                case '\r':
+                                case '\n':
 
-                        break;
+                                    if (inputCommand[0] == 'g')
+                                    {
+                                        int position = int.Parse(new string(inputValue, 0, inputValueLength));
+                                        output.AppendFormat("{0}", Q.Get(position)).AppendLine();
+                                    }
+                                    else if (inputCommand[5] == 'b')
+                                    {
+                                        long value = long.Parse(new string(inputValue, 0, inputValueLength));
+                                        Q.PushBack(value);
+                                    }
+                                    else if (inputCommand[5] == 'f')
+                                    {
+                                        long value = long.Parse(new string(inputValue, 0, inputValueLength));
+                                        Q.PushFront(value);
+                                    }
+                                    else if (inputCommand[5] == 'm')
+                                    {
+                                        long value = long.Parse(new string(inputValue, 0, inputValueLength));
+                                        Q.PushMiddle(value);
+                                    }
+                                    else
+                                        throw new ArgumentException("Invalid command: " + new string(inputCommand, 0, inputCommandLength));
+
+                                    noOps--;
+                                    inputCommandLength = 0;
+                                    inputValueLength = 0;
+                                    state = 0;
+
+                                    if (output.Length >= output.Capacity - 50)
+                                    {
+                                        Console.Write(output);
+                                        output.Clear();
+                                    }
+
+                                    break;
+                                default:
+                                    inputValue[inputValueLength++] = ch;
+                                    break;
+                            }
+
+                            break;
+                        default:
+                            throw new InvalidOperationException("Invalid state: " + state);
+                    }
                 }
             }
 
-            //sw.Stop();
-            //Console.Error.WriteLine($"Elapsed: {sw.ElapsedMilliseconds} ms.");
+            if (output.Length > 0)
+            {
+                Console.Write(output);
+                output.Clear();
+            }
         }
     }
 }
