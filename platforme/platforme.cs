@@ -1,6 +1,7 @@
 ﻿/*
 https://open.kattis.com/problems/platforme
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace platforme
         {
             int pillarLength = 0;
             var heights = new Dictionary<int, int>();
-            
+
             foreach (Platform platform in platforms.OrderBy(x => x.Height))
             {
                 pillarLength += heights.TryGetValue(platform.Left, out int supportingPlatformOnLeft)
