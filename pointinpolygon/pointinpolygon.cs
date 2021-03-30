@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+ * https://open.kattis.com/problems/pointinpolygon
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,40 +19,12 @@ namespace pointinpolygon
         public Point A { get; set; }
         public Point B { get; set; }
     }
-
+    
     internal class TestCase
     {
-        public List<Point> Polygon = new List<Point>();
-
-        public string Test(Point point)
-        {
-            if (GetPolygonLines().Any(x => OnSegment(x, point)))
-            {
-                return "on";
-            }
-
-            return $"P-{point.X}x{point.Y}";
-        }
-
-        private IEnumerable<Line> GetPolygonLines()
-        {
-            for (int i = 1; i < Polygon.Count; i++)
-            {
-                yield return new Line
-                {
-                    A = Polygon[i - 1],
-                    B = Polygon[i]
-                };
-            }
-
-            yield return new Line
-            {
-                A = Polygon[Polygon.Count - 1],
-                B = Polygon[0]
-            };
-        }
-
-        private bool OnSegment(Line vector, Point point)
+        public List<Point> Polygons = new List<Point>();
+        
+        private static bool OnSegment(Line vector, Point point)
         {
             int x1 = Math.Min(vector.A.X, vector.B.X);
             int y1 = Math.Min(vector.A.Y, vector.B.Y);
@@ -59,10 +35,46 @@ namespace pointinpolygon
             {
                 float dx = ((float) point.X - x1) / (x2 - x1);
                 float dy = ((float) point.Y - y1) / (y2 - y1);
-                return dx == dy;
+                return dx.Equals(dy);
             }
 
             return false;
+        }
+
+        public string Test(Point point)
+        {
+            Line[] polygonLines = GetPolygonLines().ToArray();
+
+            if (polygonLines.Any(x => OnSegment(x, point)))
+            {
+                return "on";
+            }
+
+            return InPolygon() ? "in" : "out";
+        }
+
+        private IEnumerable<Line> GetPolygonLines()
+        {
+            for (int i = 1; i < Polygons.Count; i++)
+            {
+                yield return new Line
+                {
+                    A = Polygons[i - 1],
+                    B = Polygons[i]
+                };
+            }
+
+            yield return new Line
+            {
+                A = Polygons[^1],
+                //A = Polygons[Polygons.Count - 1],
+                B = Polygons[0]
+            };
+        }
+
+        private bool InPolygon()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -80,7 +92,7 @@ namespace pointinpolygon
                     break;
                 }
 
-                testCase.Polygon.AddRange(ReadPoints(n));
+                testCase.Polygons.AddRange(ReadPoints(n));
 
                 int m = int.Parse(Console.ReadLine());
                 foreach (Point p in ReadPoints(m))
