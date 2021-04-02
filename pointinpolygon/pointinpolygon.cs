@@ -18,6 +18,30 @@ namespace pointinpolygon
     {
         public Point A { get; set; }
         public Point B { get; set; }
+        public (float k, float m) GetLinearEquation()
+        {
+            float x1, x2, y1, y2;
+            if (A.X < B.X)
+            {
+                x1 = A.X;
+                y1 = A.Y;
+                x2 = B.X;
+                y2 = B.Y;
+            }
+            else
+            {
+                x1 = B.X;
+                y1 = B.Y;
+                x2 = A.X;
+                y2 = A.Y;
+            }
+
+            float k = (y2 - y1) / (x2 - x1);
+
+            float m = x1 * (-k) + y1;
+
+            return (k, m);
+        }
     }
 
     internal class TestCase
