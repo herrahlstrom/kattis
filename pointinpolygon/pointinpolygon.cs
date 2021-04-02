@@ -19,30 +19,38 @@ namespace pointinpolygon
         public Point A { get; set; }
         public Point B { get; set; }
     }
-    
+
     internal class TestCase
     {
         public List<Point> Polygons = new List<Point>();
-        
+
         private static bool OnSegment(Line vector, Point point)
         {
             int x1 = Math.Min(vector.A.X, vector.B.X);
             int y1 = Math.Min(vector.A.Y, vector.B.Y);
             int x2 = Math.Max(vector.A.X, vector.B.X);
             int y2 = Math.Max(vector.A.Y, vector.B.Y);
-
-            if (point.X <= x2 && point.X >= x1 && point.Y <= y2 && point.Y >= y1)
+            if (point.X < x1 || point.X > x2 || point.Y < y1 || point.Y > y2)
             {
-                float dx = ((float) point.X - x1) / (x2 - x1);
-                float dy = ((float) point.Y - y1) / (y2 - y1);
-                return dx.Equals(dy);
+                return false;
             }
 
-            return false;
+            float dx = ((float)point.X - x1) / (x2 - x1);
+            float dy = ((float)point.Y - y1) / (y2 - y1);
+            return dx.Equals(dy);
         }
 
         public string Test(Point point)
         {
+            int x1 = Polygons.Min(p => p.X);
+            int y1 = Polygons.Min(p => p.Y);
+            int x2 = Polygons.Max(p => p.X);
+            int y2 = Polygons.Max(p => p.Y);
+            if (point.X < x1 || point.X > x2 || point.Y < y1 || point.Y > y2)
+            {
+                return "out";
+            }
+
             Line[] polygonLines = GetPolygonLines().ToArray();
 
             if (polygonLines.Any(x => OnSegment(x, point)))
@@ -66,14 +74,14 @@ namespace pointinpolygon
 
             yield return new Line
             {
-                A = Polygons[^1],
-                //A = Polygons[Polygons.Count - 1],
+                A = Polygons[Polygons.Count - 1],
                 B = Polygons[0]
             };
         }
 
         private bool InPolygon()
         {
+            return false;
             throw new NotImplementedException();
         }
     }
