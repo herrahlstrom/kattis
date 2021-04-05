@@ -17,6 +17,23 @@ namespace pointinpolygon
         {
             return "{" + X + "," + Y + "}";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Point other)
+            {
+                return X == other.X && Y == other.Y;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return Tuple.Create(X, Y).GetHashCode();
+        }
     }
 
     public class VerticalLine : ILinearEquation
@@ -49,14 +66,17 @@ namespace pointinpolygon
         public Point A { get; set; }
         public Point B { get; set; }
 
+        public bool IsHorizontal => A.Y == B.Y;
+        public bool IsVertical => A.X == B.X;
+
         public Point GetTop()
         {
-            return A.Y < B.Y ? A : B;
+            return A.Y > B.Y ? A : B;
         }
 
         public Point GetBottom()
         {
-            return A.Y > B.Y ? A : B;
+            return A.Y < B.Y ? A : B;
         }
 
         public Point GetLeft()
@@ -131,24 +151,40 @@ namespace pointinpolygon
 
         private static bool OnSegment(Line vector, Point point)
         {
-            int x1 = Math.Min(vector.A.X, vector.B.X);
-            int y1 = Math.Min(vector.A.Y, vector.B.Y);
-            int x2 = Math.Max(vector.A.X, vector.B.X);
-            int y2 = Math.Max(vector.A.Y, vector.B.Y);
-            if (point.X < x1 || point.X > x2 || point.Y < y1 || point.Y > y2)
+            if (point.X < vector.GetLeft().X ||
+                point.X > vector.GetRight().X ||
+                point.Y < vector.GetBottom().Y ||
+                point.Y > vector.GetTop().Y)
             {
                 return false;
             }
 
-            float dx = x2 == x1
-                ? float.MaxValue
-                : ((float)point.X - x1) / (x2 - x1);
+            if (point.Equals(vector.A) || point.Equals(vector.B))
+            {
+                return true;
+            }
 
-            float dy = y2 == y1
-                ? float.MaxValue
-                : ((float)point.Y - y1) / (y2 - y1);
+            if (vector.IsHorizontal)
+            {
+                return point.Y == vector.A.Y &&
+                       point.X >= vector.GetLeft().X &&
+                       point.X <= vector.GetRight().X;
+            }
 
-            return dx.Equals(dy);
+            if (vector.IsVertical)
+            {
+                return point.X == vector.A.X &&
+                       point.Y >= vector.GetBottom().Y &&
+                       point.Y <= vector.GetTop().Y;
+            }
+
+            var left = vector.GetLeft();
+            var right = vector.GetRight();
+
+            float dx = (Math.Abs((float)point.X - left.X)) / Math.Abs((right.X - left.X));
+            float dy = (Math.Abs((float)point.Y - left.Y)) / Math.Abs((right.Y - left.Y));
+
+            return Math.Abs(dx - dy) <= 0.0001;
         }
 
         public void AddPolygonPoint(Point p)
@@ -224,8 +260,8 @@ namespace pointinpolygon
                 // Assumption: rayCastingLine is Horizontal
                 return rayCastingLine.GetLeft().X < vLine.X &&
                        rayCastingLine.GetRight().X > vLine.X &&
-                       rayCastingLine.A.Y > line.GetTop().Y &&
-                       rayCastingLine.A.Y < line.GetBottom().Y;
+                       rayCastingLine.A.Y < line.GetTop().Y &&
+                       rayCastingLine.A.Y > line.GetBottom().Y;
             }
 
             if (lineLinearEquation is LinearEquation regLine)
@@ -236,7 +272,7 @@ namespace pointinpolygon
                 }
 
                 // Assumption: rayCastingLine is Horizontal
-                float crossX = (rayCastingLine.A.Y - regLine.M) / regLine.K;
+                float crossX = (rayCastingLine.GetLeft().Y - regLine.M) / regLine.K;
                 return crossX >= line.GetLeft().X && crossX <= line.GetRight().X &&
                        crossX >= rayCastingLine.GetLeft().X && crossX <= rayCastingLine.GetRight().X;
             }
