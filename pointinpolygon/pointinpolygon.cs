@@ -8,18 +8,74 @@ using System.Linq;
 
 namespace pointinpolygon
 {
-    internal struct Point
+    public struct Point
     {
         public int X { get; set; }
         public int Y { get; set; }
     }
 
-    internal struct Line
+    public class VerticalLine : ILinearEquation
+    {
+        public float X { get; set; }
+    }
+
+    public class HorizontalLine : ILinearEquation
+    {
+        public float Y { get; set; }
+    }
+
+    public class LinearEquation : ILinearEquation
+    {
+        public float K { get; set; }
+        public float M { get; set; }
+    }
+
+    public class SinglePointLine : ILinearEquation
+    {
+        public Point Point { get; set; }
+    }
+
+    public interface ILinearEquation
+    {
+    }
+
+    public struct Line
     {
         public Point A { get; set; }
         public Point B { get; set; }
-        public (float k, float m) GetLinearEquation()
+
+        public Point GetTop()
         {
+            return A.Y < B.Y ? A : B;
+        }
+
+        public Point GetBottom()
+        {
+            return A.Y > B.Y ? A : B;
+        }
+
+        public Point GetLeft()
+        {
+            return A.X < B.X ? A : B;
+        }
+
+        public ILinearEquation GetLinearEquation()
+        {
+            if (A.X == B.X && A.Y == B.Y)
+            {
+                return new SinglePointLine {Point = A};
+            }
+
+            if (A.X == B.X)
+            {
+                return new VerticalLine {X = A.X};
+            }
+
+            if (A.Y == B.Y)
+            {
+                return new HorizontalLine {Y = A.Y};
+            }
+
             float x1, x2, y1, y2;
             if (A.X < B.X)
             {
@@ -36,17 +92,32 @@ namespace pointinpolygon
                 y2 = A.Y;
             }
 
+
             float k = (y2 - y1) / (x2 - x1);
 
-            float m = x1 * (-k) + y1;
+            return new LinearEquation
+            {
+                K = k,
+                M = x1 * -k + y1
+            };
+        }
 
-            return (k, m);
+        public Point GetRight()
+        {
+            return A.X > B.X ? A : B;
         }
     }
 
-    internal class TestCase
+    public enum Result
     {
-        public List<Point> Polygons = new List<Point>();
+        On,
+        In,
+        Out
+    }
+
+    public class TestCase
+    {
+        private readonly List<Point> _polygons = new List<Point>();
 
         private static bool OnSegment(Line vector, Point point)
         {
@@ -59,53 +130,107 @@ namespace pointinpolygon
                 return false;
             }
 
-            float dx = ((float)point.X - x1) / (x2 - x1);
-            float dy = ((float)point.Y - y1) / (y2 - y1);
+            float dx = x2 == x1
+                ? float.MaxValue
+                : ((float) point.X - x1) / (x2 - x1);
+
+            float dy = y2 == y1
+                ? float.MaxValue
+                : ((float) point.Y - y1) / (y2 - y1);
+
             return dx.Equals(dy);
         }
 
-        public string Test(Point point)
+        public void AddPolygonPoint(Point p)
         {
-            int x1 = Polygons.Min(p => p.X);
-            int y1 = Polygons.Min(p => p.Y);
-            int x2 = Polygons.Max(p => p.X);
-            int y2 = Polygons.Max(p => p.Y);
+            _polygons.Add(p);
+        }
+
+        public Result Test(Point point)
+        {
+            int x1 = _polygons.Min(p => p.X);
+            int y1 = _polygons.Min(p => p.Y);
+            int x2 = _polygons.Max(p => p.X);
+            int y2 = _polygons.Max(p => p.Y);
             if (point.X < x1 || point.X > x2 || point.Y < y1 || point.Y > y2)
             {
-                return "out";
+                return Result.Out;
             }
 
-            Line[] polygonLines = GetPolygonLines().ToArray();
-
-            if (polygonLines.Any(x => OnSegment(x, point)))
+            var rayCastingLine = new Line
             {
-                return "on";
+                A = new Point {X = x1 - 1, Y = point.Y},
+                B = point
+            };
+
+            int lineCrossCounter = 0;
+            foreach (Line pLine in GetPolygonLines())
+            {
+                if (OnSegment(pLine, point))
+                {
+                    return Result.On;
+                }
+
+                if (LineIntesect(pLine, rayCastingLine))
+                {
+                    lineCrossCounter++;
+                }
             }
 
-            return InPolygon() ? "in" : "out";
+            return lineCrossCounter % 2 == 0
+                ? Result.Out
+                : Result.In;
         }
 
         private IEnumerable<Line> GetPolygonLines()
         {
-            for (int i = 1; i < Polygons.Count; i++)
+            for (int i = 1; i < _polygons.Count; i++)
             {
                 yield return new Line
                 {
-                    A = Polygons[i - 1],
-                    B = Polygons[i]
+                    A = _polygons[i - 1],
+                    B = _polygons[i]
                 };
             }
 
             yield return new Line
             {
-                A = Polygons[Polygons.Count - 1],
-                B = Polygons[0]
+                A = _polygons.Last(),
+                B = _polygons.First()
             };
         }
 
-        private bool InPolygon()
+        private bool LineIntesect(Line line, Line rayCastingLine)
         {
-            return false;
+            ILinearEquation lineLinearEquation = line.GetLinearEquation();
+            
+            if (lineLinearEquation is SinglePointLine || lineLinearEquation is HorizontalLine)
+            {
+                return false;
+            }
+
+            if (lineLinearEquation is VerticalLine vLine)
+            {
+                // Assumption: rayCastingLine is Horizontal
+                return rayCastingLine.GetLeft().X < vLine.X &&
+                       rayCastingLine.GetRight().X > vLine.X &&
+                       rayCastingLine.A.Y > line.GetTop().Y &&
+                       rayCastingLine.A.Y < line.GetBottom().Y;
+            }
+
+            if (lineLinearEquation is LinearEquation regLine)
+            {
+                if (regLine.K == 0)
+                {
+                    return false;
+                }
+
+                // Assumption: rayCastingLine is Horizontal
+                float crossX = (rayCastingLine.A.Y - regLine.M) / regLine.K;
+                return crossX >= line.GetLeft().X && crossX <= line.GetRight().X &&
+                       crossX >= rayCastingLine.GetLeft().X && crossX <= rayCastingLine.GetRight().X;
+            }
+
             throw new NotImplementedException();
         }
     }
@@ -124,12 +249,28 @@ namespace pointinpolygon
                     break;
                 }
 
-                testCase.Polygons.AddRange(ReadPoints(n));
+                foreach (Point p in ReadPoints(n))
+                {
+                    testCase.AddPolygonPoint(p);
+                }
 
                 int m = int.Parse(Console.ReadLine());
                 foreach (Point p in ReadPoints(m))
                 {
-                    Console.WriteLine(testCase.Test(p));
+                    switch (testCase.Test(p))
+                    {
+                        case Result.In:
+                            Console.WriteLine("in");
+                            break;
+                        case Result.On:
+                            Console.WriteLine("on");
+                            break;
+                        case Result.Out:
+                            Console.WriteLine("out");
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
                 }
             }
         }
