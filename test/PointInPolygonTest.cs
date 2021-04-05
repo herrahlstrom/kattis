@@ -69,15 +69,108 @@ namespace test
 
             var p3 = new pointinpolygon.Point { X = 4, Y = 6 };
             Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(p3), "M Shape Case, Point " + p3.ToString());
-            
+
             var p4 = new pointinpolygon.Point { X = 7, Y = 6 };
             Assert.AreEqual(pointinpolygon.Result.In, tc.Test(p4), "M Shape Case, Point " + p4.ToString());
-            
+
             var p5 = new pointinpolygon.Point { X = 8, Y = 6 };
             Assert.AreEqual(pointinpolygon.Result.On, tc.Test(p5), "M Shape Case, Point " + p5.ToString());
-            
+
             var p6 = new pointinpolygon.Point { X = 9, Y = 6 };
             Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(p6), "M Shape Case, Point " + p6.ToString());
+        }
+        [TestMethod]
+        public void TestTangentRayLinePolygon1()
+        {
+            var tc = new pointinpolygon.TestCase();
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 0, Y = 0 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 0, Y = 4 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 6, Y = 4 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 6, Y = 0 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 4, Y = 0 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 4, Y = 2 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 2, Y = 2 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 2, Y = 0 });
+
+            // Y=0
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = -1, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 0, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 1, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 2, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 3, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 4, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 5, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 6, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 7, Y = 0 }));
+
+            // Y=1
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = -1, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 0, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(new pointinpolygon.Point { X = 1, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 2, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 3, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 4, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(new pointinpolygon.Point { X = 5, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 6, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 7, Y = 1 }));
+
+            // Y=2
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = -1, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 0, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(new pointinpolygon.Point { X = 1, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 2, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 3, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 4, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(new pointinpolygon.Point { X = 5, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 6, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 7, Y = 2 }));
+        }
+
+        [TestMethod]
+        public void TestTangentRayLinePolygon2()
+        {
+            var tc = new pointinpolygon.TestCase();
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 0, Y = 0 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 0, Y = 3 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 6, Y = 3 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 6, Y = 2 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 4, Y = 2 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 4, Y = 1 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 2, Y = 1 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 2, Y = 0 });
+
+            // Y=0
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = -1, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 0, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 1, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 2, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 3, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 4, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 5, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 6, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 7, Y = 0 }));
+
+            // Y=1
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = -1, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 0, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(new pointinpolygon.Point { X = 1, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 2, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 3, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 4, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 5, Y = 1 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 6, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 7, Y = 0 }));
+
+            // Y=2
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = -1, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 0, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(new pointinpolygon.Point { X = 1, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(new pointinpolygon.Point { X = 2, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(new pointinpolygon.Point { X = 3, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 4, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 5, Y = 2 }));
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(new pointinpolygon.Point { X = 6, Y = 0 }));
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(new pointinpolygon.Point { X = 7, Y = 0 }));
         }
 
         private static pointinpolygon.TestCase GetCase1()
