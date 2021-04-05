@@ -51,6 +51,35 @@ namespace test
             Assert.AreEqual(pointinpolygon.Result.In, result, "Case 2, Point " + p.ToString());
         }
 
+        [TestMethod]
+        public void TestMShapedPolygon()
+        {
+            var tc = new pointinpolygon.TestCase();
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 0, Y = 0 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 0, Y = 10 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 4, Y = 5 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 8, Y = 10 });
+            tc.AddPolygonPoint(new pointinpolygon.Point { X = 8, Y = 0 });
+
+            var p1 = new pointinpolygon.Point { X = 0, Y = 6 };
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(p1), "M Shape Case, Point " + p1.ToString());
+
+            var p2 = new pointinpolygon.Point { X = 1, Y = 6 };
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(p2), "M Shape Case, Point " + p2.ToString());
+
+            var p3 = new pointinpolygon.Point { X = 4, Y = 6 };
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(p3), "M Shape Case, Point " + p3.ToString());
+            
+            var p4 = new pointinpolygon.Point { X = 7, Y = 6 };
+            Assert.AreEqual(pointinpolygon.Result.In, tc.Test(p4), "M Shape Case, Point " + p4.ToString());
+            
+            var p5 = new pointinpolygon.Point { X = 8, Y = 6 };
+            Assert.AreEqual(pointinpolygon.Result.On, tc.Test(p5), "M Shape Case, Point " + p5.ToString());
+            
+            var p6 = new pointinpolygon.Point { X = 9, Y = 6 };
+            Assert.AreEqual(pointinpolygon.Result.Out, tc.Test(p6), "M Shape Case, Point " + p6.ToString());
+        }
+
         private static pointinpolygon.TestCase GetCase1()
         {
             var tc = new pointinpolygon.TestCase();
