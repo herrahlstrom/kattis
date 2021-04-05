@@ -273,8 +273,8 @@ namespace pointinpolygon
 
                 // Assumption: rayCastingLine is Horizontal
                 float crossX = (rayCastingLine.GetLeft().Y - regLine.M) / regLine.K;
-                return crossX >= line.GetLeft().X && crossX <= line.GetRight().X &&
-                       crossX >= rayCastingLine.GetLeft().X && crossX <= rayCastingLine.GetRight().X;
+                return crossX >= line.GetLeft().X && crossX < line.GetRight().X &&
+                       crossX >= rayCastingLine.GetLeft().X && crossX < rayCastingLine.GetRight().X;
             }
 
             throw new NotImplementedException();
