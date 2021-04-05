@@ -12,6 +12,11 @@ namespace pointinpolygon
     {
         public int X { get; set; }
         public int Y { get; set; }
+
+        public override string ToString()
+        {
+            return "{" + X + "," + Y + "}";
+        }
     }
 
     public class VerticalLine : ILinearEquation
@@ -63,17 +68,17 @@ namespace pointinpolygon
         {
             if (A.X == B.X && A.Y == B.Y)
             {
-                return new SinglePointLine {Point = A};
+                return new SinglePointLine { Point = A };
             }
 
             if (A.X == B.X)
             {
-                return new VerticalLine {X = A.X};
+                return new VerticalLine { X = A.X };
             }
 
             if (A.Y == B.Y)
             {
-                return new HorizontalLine {Y = A.Y};
+                return new HorizontalLine { Y = A.Y };
             }
 
             float x1, x2, y1, y2;
@@ -106,6 +111,11 @@ namespace pointinpolygon
         {
             return A.X > B.X ? A : B;
         }
+
+        public override string ToString()
+        {
+            return $"{A}-{B}";
+        }
     }
 
     public enum Result
@@ -132,11 +142,11 @@ namespace pointinpolygon
 
             float dx = x2 == x1
                 ? float.MaxValue
-                : ((float) point.X - x1) / (x2 - x1);
+                : ((float)point.X - x1) / (x2 - x1);
 
             float dy = y2 == y1
                 ? float.MaxValue
-                : ((float) point.Y - y1) / (y2 - y1);
+                : ((float)point.Y - y1) / (y2 - y1);
 
             return dx.Equals(dy);
         }
@@ -159,7 +169,7 @@ namespace pointinpolygon
 
             var rayCastingLine = new Line
             {
-                A = new Point {X = x1 - 1, Y = point.Y},
+                A = new Point { X = x1 - 1, Y = point.Y },
                 B = point
             };
 
@@ -203,7 +213,7 @@ namespace pointinpolygon
         private bool LineIntesect(Line line, Line rayCastingLine)
         {
             ILinearEquation lineLinearEquation = line.GetLinearEquation();
-            
+
             if (lineLinearEquation is SinglePointLine || lineLinearEquation is HorizontalLine)
             {
                 return false;
