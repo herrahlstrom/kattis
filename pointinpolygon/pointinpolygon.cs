@@ -24,10 +24,8 @@ namespace pointinpolygon
             {
                 return X == other.X && Y == other.Y;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public override int GetHashCode()
@@ -88,17 +86,17 @@ namespace pointinpolygon
         {
             if (A.X == B.X && A.Y == B.Y)
             {
-                return new SinglePointLine { Point = A };
+                return new SinglePointLine {Point = A};
             }
 
             if (A.X == B.X)
             {
-                return new VerticalLine { X = A.X };
+                return new VerticalLine {X = A.X};
             }
 
             if (A.Y == B.Y)
             {
-                return new HorizontalLine { Y = A.Y };
+                return new HorizontalLine {Y = A.Y};
             }
 
             float x1, x2, y1, y2;
@@ -178,11 +176,11 @@ namespace pointinpolygon
                        point.Y <= vector.GetTop().Y;
             }
 
-            var left = vector.GetLeft();
-            var right = vector.GetRight();
+            Point left = vector.GetLeft();
+            Point right = vector.GetRight();
 
-            float dx = (Math.Abs((float)point.X - left.X)) / Math.Abs((right.X - left.X));
-            float dy = (Math.Abs((float)point.Y - left.Y)) / Math.Abs((right.Y - left.Y));
+            float dx = Math.Abs((float) point.X - left.X) / Math.Abs(right.X - left.X);
+            float dy = Math.Abs((float) point.Y - left.Y) / Math.Abs(right.Y - left.Y);
 
             return Math.Abs(dx - dy) <= 0.0001;
         }
