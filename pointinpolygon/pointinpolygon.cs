@@ -34,30 +34,12 @@ namespace pointinpolygon
         }
     }
 
-    public class VerticalLine : ILinearEquation
-    {
-        public float X { get; set; }
-    }
-
-    public class HorizontalLine : ILinearEquation
-    {
-        public float Y { get; set; }
-    }
-
-    public class LinearEquation : ILinearEquation
+    public class LinearEquation
     {
         public float K { get; set; }
         public float M { get; set; }
     }
 
-    public class SinglePointLine : ILinearEquation
-    {
-        public Point Point { get; set; }
-    }
-
-    public interface ILinearEquation
-    {
-    }
 
     public struct Line
     {
@@ -82,21 +64,16 @@ namespace pointinpolygon
             return A.X < B.X ? A : B;
         }
 
-        public ILinearEquation GetLinearEquation()
+        public LinearEquation GetLinearEquation()
         {
             if (A.X == B.X && A.Y == B.Y)
             {
-                return new SinglePointLine {Point = A};
+                throw new NotImplementedException("A line can't start/end on the same point");
             }
 
             if (A.X == B.X)
             {
-                return new VerticalLine {X = A.X};
-            }
-
-            if (A.Y == B.Y)
-            {
-                return new HorizontalLine {Y = A.Y};
+                throw new InvalidOperationException("Cant create a linear equation for a vertical line");
             }
 
             float x1, x2, y1, y2;
@@ -123,6 +100,12 @@ namespace pointinpolygon
                 K = k,
                 M = x1 * -k + y1
             };
+        }
+
+        public float GetLinearEquation(float x)
+        {
+            LinearEquation linearEquation = GetLinearEquation();
+            return linearEquation.K * x + linearEquation.M;
         }
 
         public Point GetRight()
@@ -203,12 +186,14 @@ namespace pointinpolygon
 
             var rayCastingLine = new Line
             {
-                A = new Point { X = x1 - 1, Y = point.Y },
+                // A small offset on Y to not get an horizontal line
+                A = new Point {X = x1 - 1, Y = point.Y + 1},
                 B = point
             };
 
             int lineCrossCounter = 0;
-            foreach (Line pLine in GetPolygonLines())
+            List<Line> lines = GetPolygonLines().ToList();
+            foreach (Line pLine in lines)
             {
                 if (OnSegment(pLine, point))
                 {
@@ -246,36 +231,54 @@ namespace pointinpolygon
 
         private bool LineIntesect(Line line, Line rayCastingLine)
         {
-            ILinearEquation lineLinearEquation = line.GetLinearEquation();
-
-            if (lineLinearEquation is SinglePointLine || lineLinearEquation is HorizontalLine)
+            if (line.IsVertical && rayCastingLine.IsVertical)
             {
                 return false;
             }
 
-            if (lineLinearEquation is VerticalLine vLine)
+            if (line.IsVertical || rayCastingLine.IsVertical)
             {
-                // Assumption: rayCastingLine is Horizontal
-                return rayCastingLine.GetLeft().X < vLine.X &&
-                       rayCastingLine.GetRight().X > vLine.X &&
-                       rayCastingLine.A.Y < line.GetTop().Y &&
-                       rayCastingLine.A.Y > line.GetBottom().Y;
-            }
-
-            if (lineLinearEquation is LinearEquation regLine)
-            {
-                if (regLine.K == 0)
+                int x;
+                Line vLine;
+                Line otherLine;
+                if (line.IsVertical)
                 {
-                    return false;
+                    x = line.A.X;
+                    vLine = line;
+                    otherLine = rayCastingLine;
+                }
+                else if (rayCastingLine.IsVertical)
+                {
+                    x = rayCastingLine.A.X;
+                    vLine = rayCastingLine;
+                    otherLine = line;
+                }
+                else
+                {
+                    throw new NotImplementedException();
                 }
 
-                // Assumption: rayCastingLine is Horizontal
-                float crossX = (rayCastingLine.GetLeft().Y - regLine.M) / regLine.K;
-                return crossX >= line.GetLeft().X && crossX < line.GetRight().X &&
-                       crossX >= rayCastingLine.GetLeft().X && crossX < rayCastingLine.GetRight().X;
+                float intersectY = otherLine.GetLinearEquation(x);
+                return otherLine.GetLeft().X < x &&
+                       otherLine.GetRight().X > x &&
+                       intersectY <= vLine.GetTop().Y &&
+                       intersectY >= vLine.GetBottom().Y;
             }
 
-            throw new NotImplementedException();
+            LinearEquation lineEq = line.GetLinearEquation();
+            LinearEquation rayEq = rayCastingLine.GetLinearEquation();
+
+            if (Math.Abs(rayEq.K - lineEq.K) < 0.001)
+            {
+                return false;
+            }
+
+            float crossX = (lineEq.M - rayEq.M) / (rayEq.K - lineEq.K);
+
+            return crossX >= rayCastingLine.GetLeft().X &&
+                   crossX >= line.GetLeft().X &&
+                   crossX <= rayCastingLine.GetRight().X &&
+                   crossX < line.GetRight().X;
         }
     }
 
