@@ -190,8 +190,8 @@ namespace test
             Assert.AreEqual(Result.In, tc.Test(new Point {X = 3, Y = 2}), "X:3 Y:2");
             Assert.AreEqual(Result.On, tc.Test(new Point {X = 4, Y = 2}), "X:4 Y:2");
             Assert.AreEqual(Result.On, tc.Test(new Point {X = 5, Y = 2}), "X:5 Y:2");
-            Assert.AreEqual(Result.On, tc.Test(new Point {X = 6, Y = 0}), "X:6 Y:2");
-            Assert.AreEqual(Result.Out, tc.Test(new Point {X = 7, Y = 0}), "X:7 Y:2");
+            Assert.AreEqual(Result.On, tc.Test(new Point {X = 6, Y = 2}), "X:6 Y:2");
+            Assert.AreEqual(Result.Out, tc.Test(new Point {X = 7, Y = 2}), "X:7 Y:2");
         }
     }
 }
