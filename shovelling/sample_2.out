@@ -1,0 +1,87 @@
+10 1
+A~~B~~C~~D
+
+12 5
+oooooooooooo
+oAooB~~C~~Do
+o.ooooo.oooo
+o.oooo~.oooo
+o......ooooo
+
+12 5
+oooooooooooo
+ooooBooC~~Do
+A.oo.oo.ooo.
+o.~o.o~.ooo.
+oo..~..o...o
+
+6 6
+A~~~~B
+~oooo~
+~oooo~
+~oooo~
+~oooo~
+CooooD
+
+5 5
+ooAoo
+oo~oo
+B~~~C
+oo~oo
+ooDoo
+
+4 4
+A~#B
+o.~~
+#o.o
+C~Do
+
+20 10
+oooooooooooooooooooo
+A~~~~~oooooooooooooo
+ooooo~~~~~~~~~B~~ooo
+ooooo~oooooooooo~ooo
+ooooo~oooooooooo~ooo
+ooooo~oooooooooo~ooo
+ooooo~oooooooooo~ooo
+oooooCoooooooooo~ooo
+ooooooooooooooooDooo
+oooooooooooooooooooo
+
+20 10
+oooooooooooooooooooo
+A~~~~#oooooooo#ooo##
+oooo~#ooooo#ooBooooo
+oooo~~~#o#oooo~ooooo
+oooooo~o#~~~~~~~oooo
+ooooo#~~~~#ooo#~oooo
+ooooo~~ooooo#oo~#ooo
+oo#ooCoo#oooooo~~ooo
+ooooo#oooooo#oooDooo
+ooooo#ooooooooooooo#
+
+20 10
+oooooo#~~B#oooooooo#
+#oo#o#~~##C~~o#oo#oo
+o#~~~~~#o###~#o#oo#o
+~~~#o#o#oo#o~~~~#ooo
+~##o#o#~~~#oo~#~~oo#
+~#oooo~~#~~##~o#~ooo
+~~###o~#oo~~~~#o~#oo
+o~~oo#Do#o#oo#o#~ooo
+o#~##A##o#o##~~~~#o#
+oo~~~~~~~~~~~~o#oo#o
+
+20 10
+oooooo#~~B#..~....~#
+#oo#o#~~##C~~o#oo#..
+o#~~~~~#o###~#o#oo#.
+~~~#o#o#oo#o~~oo#o..
+~##o#o#~~~#oo~#ooo.#
+~#oooo~~#~~##~o#oo..
+~o###o~#oo~~~~#oo#o.
+~oooo#Do#o#oo#o#~~..
+.#o##A##o#o##~~~~#.#
+..~~~~~~~~~~~~o#oo#o
+
+0 0
