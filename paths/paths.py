@@ -7,7 +7,8 @@ https://open.kattis.com/problems/paths
 # k: number of different colors
 n, m, k = [int(x) for x in input().split()]
 
-colors = [int(x) for x in input().split()]
+colors = [1 << (int(x) - 1) for x in input().split()]
+max_color_value = (1 << k) - 1
 
 edges = [[] for x in range(n)]
 
@@ -21,13 +22,15 @@ for i in range(m):
 result = 0
 queue = []
 for i in range(n):
-    queue.append((i + 1, 1 << colors[i]))
+    queue.append((i + 1, colors[i]))
     while len(queue) > 0:
         vertex, passed_colors = queue.pop()
         for next in edges[vertex - 1]:
-            next_color_bit = 1 << colors[next - 1]
-            if passed_colors & next_color_bit != next_color_bit:
-                queue.append((next, passed_colors | next_color_bit))
-                result += 1
+            next_passed_colors = passed_colors | colors[next - 1]
+            if passed_colors == next_passed_colors:
+                continue
+            if next_passed_colors < max_color_value:
+                queue.append((next, next_passed_colors))
+            result += 1
 
 print(result)
